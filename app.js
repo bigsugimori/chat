@@ -7,29 +7,23 @@ var express = require('express')
   , routes = require('./routes')
   , user = require('./routes/user')
   , http = require('http')
-  , path = require('path');
+  , path = require('path')
+  , ejs = require('ejs');
 
 var app = express();
+var server = http.createServer(app);
+var io = require('socket.io').listen(server);
 
-app.configure(function(){
-  app.set('port', process.env.PORT || 3000);
-  app.set('views', __dirname + '/views');
-  app.set('view engine', 'ejs');
-  app.use(express.favicon());
-  app.use(express.logger('dev'));
-  app.use(express.bodyParser());
-  app.use(express.methodOverride());
-  app.use(app.router);
-  app.use(express.static(path.join(__dirname, 'public')));
-});
+app.set('view engine', 'ejs');
+app.use(express.static(path.join(__dirname, 'public')));
 
-app.configure('development', function(){
-  app.use(express.errorHandler());
-});
+server.listen(3000);
 
 app.get('/', routes.index);
-app.get('/users', user.list);
 
-http.createServer(app).listen(app.get('port'), function(){
-  console.log("Express server listening on port " + app.get('port'));
+io.sockets.on('connection', function(socket) {
+    socket.emit('news', {hello: 'world'});
+    socket.on('my other event', function(data) {
+	console.log(data);
+    });
 });
