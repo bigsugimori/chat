@@ -22,8 +22,18 @@ server.listen(3000);
 app.get('/', routes.index);
 
 io.sockets.on('connection', function(socket) {
-    socket.emit('news', {hello: 'world'});
-    socket.on('my other event', function(data) {
-	console.log(data);
+    console.log("connected");
+//    socket.emit('news', {hello: 'world'});
+//    socket.on('my other event', function(data) {
+//	console.log(data);
+//    });
+    socket.on('message', function(msg) {
+	console.log("message:" + msg);	
+	socket.emit('message', "orig:" + msg);
+	socket.broadcast.emit('message', "copy:" + msg);
+    });
+
+    socket.on('disconnect', function(msg) {
+	console.log("server disconnected");
     });
 });

@@ -3,12 +3,35 @@
   <head>
     <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">google.load("jquery", "1.7");</script>
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
     <script>
+      $(function() {
       var socket = io.connect('http://localhost:3000');
-      socket.on('news', function(data) {
-      console.log(data);
-      socket.emit('my other event', {my: 'data'});
+      socket.on('connect', function() {
+        console.log("client connected");
+        socket.emit('message', "start");
+      });
+      
+      socket.on('message', function(data) {
+        var date = new Date();
+        console.log(data);
+        $('#list').prepend($('<dt>' +  date + '</dt><dd>' + data + '</dd>'));
+      });
+
+      socket.on('disconnect', function(data) {
+      console.log("client disconnect");
+      });
+
+      $("#formform").submit(function() {
+        console.log("send");
+        var message = $('#messagege');
+        socket.emit('message', message.val());
+//        socket.emit('message', "go");
+        message.val("");
+        return false;
+      });
       });
     </script>
 
@@ -16,6 +39,12 @@
   <body>
     <h1><%= title %></h1>
     <p>Welcome to <%= title %></p>
-    あああああああああああああ
+
+    <form action="#" id="formform">
+      <input type="text" name="message" id="messagege" />
+      <input type="submit" />
+    </form>
+    <hr />
+    <dl id="list"></dl>
   </body>
 </html>
